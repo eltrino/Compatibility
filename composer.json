@@ -1,0 +1,16 @@
+{
+    "name": "eltrino/compatibility",
+    "type": "magento-module",
+    "license": "OSL-3.0",
+    "homepage": "https://bitbucket.org/eltrino/compatibility",
+    "description": "Module provide backward compatibility with Magento 1.x for Magento 2 modules",
+    "authors": [
+        {
+            "name": "Eltrino LLC",
+            "email": "license@eltrino.com"
+        }
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
