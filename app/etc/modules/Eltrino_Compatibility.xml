@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Eltrino_Compatibility>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Eltrino_Compatibility>
+    </modules>
+</config>
