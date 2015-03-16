@@ -20,6 +20,10 @@
                 "app/code/community/Eltrino/Compatibility"
             ],
             [
+                "app/code/community/Magento",
+                "app/code/community/Magento"
+            ],
+            [
                 "app/etc/modules/Eltrino_Compatibility.xml",
                 "app/etc/modules/Eltrino_Compatibility.xml"
             ]
