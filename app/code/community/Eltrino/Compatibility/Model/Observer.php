@@ -2,146 +2,84 @@
 
 class Eltrino_Compatibility_Model_Observer
 {
-    /** @var bool */
-    static $isInitialized = false;
+    const CACHE_TAG = 'COMPATIBILITY';
+    const CACHE_GROUP = 'eltrino_compatibility';
+
+    const COMPATIBILITY_MODULES_FILE_CACHE = 'compatibility_modules_file_cache';
+
+    /** @var array */
+    protected $_cacheTags = array();
+
+    /** @var array */
+    static $_loadedModules = array();
 
     /** @var array */
     protected $_allowedPools = array(
         'local',
         'community',
     );
-    /** @var array */
-    protected $_loadedModules = array();
 
-    public function init($observer)
+    /** @var bool */
+    protected $_useCache = false;
+
+    public function __construct()
+    {
+        $this->_useCache = Mage::app()->useCache(static::CACHE_GROUP);
+        $this->_cacheTags = array(
+            Mage_Core_Model_Config::CACHE_TAG,
+            static::CACHE_TAG
+        );
+    }
+
+    /**
+     * This is a first observer in magento
+     * where we can update module list and configuration
+     *
+     * @param $observer
+     */
+    public function resourceGetTableName($observer)
     {
         if ($observer->getTableName() !== 'core_website') {
             return;
         }
 
-        if (static::$isInitialized) {
-            //return;
+        try {
+            Mage::getSingleton('eltrino_compatibility/modules')->loadModules();
+            Mage_Core_Model_Resource_Setup::applyAllUpdates();
+        } catch (Exception $e) {
+            Mage::logException($e);
         }
-
-        $files = $this->getMagento2Modules();
-        $loadedModules = Mage::getModel('eltrino_compatibility/xml_modules')->loadModules($files);
-
-        if (count($loadedModules)) {
-            $this->_loadedModules = array_merge($this->_loadedModules, $loadedModules);
-        }
-
-        Mage::getModel('eltrino_compatibility/xml_config')->loadConfig($loadedModules);
-        static::$isInitialized = true;
-
     }
 
-    public function getMagento2Modules()
+    public function controllerActionLayoutRenderBefore($observer)
     {
-        //TODO: implement cache
-        $magento2modules = array();
-        foreach ($this->_allowedPools as $pool) {
-            foreach (glob(Mage::getBaseDir() . '/app/code/' . $pool . '/*/*/') as $moduleDir) {
-                $file = realpath($moduleDir . 'etc/module.xml');
-                if (file_exists($file)) {
-                    $magento2modules[] = $file;
-                }
-            }
+        try {
+            Mage::getSingleton('eltrino_compatibility/layout')->addLayoutUpdates();
+        } catch (Exception $e) {
+            Mage::logException($e);
         }
-
-        return $magento2modules;
     }
 
-    /**
-     * Now works only on frontend
-     */
-    public function addLayoutUpdates($observer)
+    public function getLoadedModules()
     {
-        /** @var Mage_Core_Controller_Front_Action $action */
-        $action = Mage::app()->getFrontController()->getAction();
-        /** @var Mage_Core_Model_Layout $layout */
-        $layout = $action->getLayout();
-        /** @var Mage_Core_Model_Layout_Update $update */
-        $update = $layout->getUpdate();
-        /** @var array $handles */
-        $handles = $update->getHandles();
-
-        foreach ($this->_loadedModules as $moduleName) {
-            $layoutDir = Mage::getModuleDir('', $moduleName) . '/view/frontend/layout/';
-            if (!is_readable($layoutDir)) {
-                continue;
-            }
-
-            $handlesToUpdate = array();
-            foreach (glob($layoutDir . '*.xml') as $layoutFile) {
-                $handleName = basename($layoutFile, '.xml');
-                if (in_array($handleName, $handles)) {
-                    $handlesToUpdate[] = $handleName;
-                }
-            }
-
-            if (!count($handlesToUpdate)) {
-                return;
-            }
-
-            $action->loadLayoutUpdates();
-
-            foreach ($handlesToUpdate as $handleName) {
-                $layoutFile = $layoutDir . $handleName . '.xml';
-                $xml = new Varien_Simplexml_Element(file_get_contents($layoutFile));
-                $newXml = new Mage_Core_Model_Layout_Element('<update/>');
-                /** @var Varien_Simplexml_Element $child */
-
-                if ($xml->getName() == 'page') {
-                    $layoutPageUpdate = $xml->getAttribute('layout');
-                    if ($layoutPageUpdate) {
-                        $reference = $newXml->addChild('reference');
-                        $reference->addAttribute('name', 'root');
-                        $reference->addChild('action');
-                        $reference->action->addAttribute('method', 'setTemplate');
-                        $reference->action->addChild('template', 'page/' . $layoutPageUpdate . '.phtml');
-                    }
-                }
-
-                foreach ($xml as $child) {
-                    if ($child->getName() == 'head') {
-                        $reference = $newXml->addChild('reference');
-                        $reference->addAttribute('name', 'head');
-                        foreach ($child as $element) {
-                            if ($element->getName() == 'css') {
-                                $block = $reference->addChild('block');
-                                $block->addAttribute('name', 'head.item');
-                                $block->addAttribute('type', 'eltrino_compatibility/head_item');
-                                $xmlAction = $block->addChild('action');
-                                $xmlAction->addAttribute('method', 'setCss');
-                                $xmlAction->addChild('src', $element['src']);
-                            }
-                        }
-                    }
-                    if ($child->getName() == 'body') {
-                        foreach ($child as $element) {
-                            if ($element->getName() == 'referenceContainer') {
-                                $reference = $newXml->addChild('reference');
-                                $reference->addAttribute('name', $element['name']);
-                                foreach ($element as $subElement) {
-                                    if ($subElement->getName() == 'block') {
-                                        $block = $reference->addChild('block');
-                                        /** TODO: do check is attribute exists before add */
-                                        $block->addAttribute('name', $subElement['name']);
-                                        $block->addAttribute('type', $subElement['class']);
-                                        $block->addAttribute('after', $subElement['after']);
-                                        $block->addAttribute('template', $subElement['template']);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                $newXml = $newXml->asNiceXml();
-                $newXml = str_replace('<update>', '', $newXml);
-                $newXml = str_replace('</update>', '', $newXml);
-                $update->addUpdate($newXml);
-            }
-            $action->generateLayoutXml()->generateLayoutBlocks();
-        }
+        return static::$_loadedModules;
     }
+
+    public function addLoadedModules($modules)
+    {
+        if (!is_array($modules)) {
+            $modules = array($modules);
+        }
+        static::$_loadedModules = array_merge(static::$_loadedModules, $modules);
+    }
+
+    public function getCache()
+    {
+        if ($this->_useCache) {
+            return Mage::app()->getCache();
+        }
+
+        return false;
+    }
+
 }

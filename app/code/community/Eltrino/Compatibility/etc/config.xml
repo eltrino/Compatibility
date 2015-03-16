@@ -12,7 +12,7 @@
                     <eltrino_compatibility>
                         <type>singleton</type>
                         <class>eltrino_compatibility/observer</class>
-                        <method>init</method>
+                        <method>resourceGetTableName</method>
                     </eltrino_compatibility>
                 </observers>
             </resource_get_tablename>
@@ -21,7 +21,7 @@
                     <eltrino_compatibility>
                         <type>singleton</type>
                         <class>eltrino_compatibility/observer</class>
-                        <method>addLayoutUpdates</method>
+                        <method>controllerActionLayoutRenderBefore</method>
                     </eltrino_compatibility>
                 </observers>
             </controller_action_layout_render_before>
@@ -48,5 +48,14 @@
                 </setup>
             </eltrino_compatibility_setup>
         </resources>
+        <cache>
+            <types>
+                <eltrino_compatibility module="eltrino_compatibility" translate="label description">
+                    <label>Compatibility cache</label>
+                    <description>Magento2 modules compatibility cache</description>
+                    <tags>COMPATIBILITY</tags>
+                </eltrino_compatibility>
+            </types>
+        </cache>
     </global>
 </config>

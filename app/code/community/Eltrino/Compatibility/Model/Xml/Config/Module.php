@@ -24,40 +24,19 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
 
     public function loadModuleConfig()
     {
-        // Register Psr0 AutoLoader
+        /** Register Psr0 AutoLoader */
         Mage::getModel('eltrino_compatibility/splAutoloader')->register();
 
-        // TODO: refactoring. Should be changed to glob by etc folder
-        if (is_readable($this->_etcModuleDir)) {
-            $this->loadGlobalConfig();
-            $diFile = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'di.xml');
-            if (is_readable($diFile)) {
-                $this->loadDiConfig($diFile);
-            }
-
-            // load frontend config section
-            $frontendConfigDir = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'frontend');
-            if (is_readable($frontendConfigDir)) {
-                $this->loadFrontendConfig($frontendConfigDir);
-            }
-
-            $crontabFile = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'crontab.xml');
-            if (is_readable($crontabFile)) {
-                $this->loadCrontab($crontabFile);
-            }
-
-
-            $layoutPath = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'view/frontend/layout');
-
-
-        }
-        $this->_config->saveCache();
+        $this->loadGlobalConfig();
+        $this->loadDiConfig();
+        $this->loadFrontendConfig();
+        $this->loadCrontabConfig();
     }
 
     public function loadGlobalConfig()
     {
         /** @var Mage_Core_Model_Config_Element $globalNode */
-        $globalNode = $this->_config->_xml->global;
+        $globalNode = $this->_config->getNode('global');
         if (is_readable($this->_moduleDir . '/Block')) {
             /** @var Mage_Core_Model_Config_Element $blocks */
             $blocks = $globalNode->blocks;
@@ -84,8 +63,8 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
             $child = $models->addChild(strtolower($this->_moduleName));
             $child->addChild('class', $namespace);
 
-            //add resource model
-            // TODO: !!! Now works only with one resouce model !!!
+            // Add resource model
+            // TODO: Now works only with one resource model
             if (is_readable($this->_moduleDir . '/Model/Resource')) {
                 $resourceModelName = strtolower($this->_moduleName) . '_resource';
                 $child->addChild('resourceModel', $resourceModelName);
@@ -126,8 +105,6 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
                 $resources->$nodeName->addChild('setup');
                 $resources->$nodeName->setup->addChild('module', $this->_moduleName);
             }
-            // TODO: find better place for this
-            Mage_Core_Model_Resource_Setup::applyAllUpdates();
         }
 
         if (is_readable($this->_moduleDir . '/Helper')) {
@@ -140,18 +117,22 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
 
     }
 
-    public function loadFrontendConfig($dir)
+    public function loadFrontendConfig()
     {
+        $frontendConfigDir = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'frontend');
+        if (!is_readable($frontendConfigDir)) {
+            return;
+        }
         /** @var Mage_Core_Model_Config_Element $frontend */
-        $frontend = $this->_config->_xml->frontend;
-        foreach (glob($dir . '/*.xml') as $file) {
+        $frontend = $this->_config->getNode('frontend');
+        foreach (glob($frontendConfigDir . '/*.xml') as $file) {
             $sectionName = basename($file, '.xml');
             $newConfig = Mage::getModel('core/config_base');
             $newConfig->loadFile($file);
             if ($sectionName == 'events') {
                 /** @var Mage_Core_Model_Config_Element $events */
                 $events = $frontend->{$sectionName};
-                foreach ($newConfig->_xml->event as $newEvent) {
+                foreach ($newConfig->getNode('event') as $newEvent) {
                     $eventName = (string)$newEvent['name'];
                     if (!isset($events->$eventName)) {
                         $child = $events->addChild((string)$newEvent['name']);
@@ -168,18 +149,25 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
 
             if ($sectionName == 'routes') {
                 /** @var Mage_Core_Model_Config_Element $routers */
-                $routers = $frontend->routers;
-                $router = $routers->addChild($newConfig->_xml->router->route['id']);
-                $router->addChild('use', (string)$newConfig->_xml->router['id']);
+                $router = $frontend->routers->addChild(
+                    $newConfig->getNode('router')->getAttribute('id')
+                );
+                $router->addChild('use', (string)$newConfig->getNode('router')->getAttribute('id'));
                 $router->addChild('args');
-                $router->args->addChild('frontName', (string)$newConfig->_xml->router->route['frontName']);
-                $router->args->addChild('module', (string)$newConfig->_xml->router->route->module['name']);
+                $router->args->addChild('frontName', (string)$newConfig->getNode('router/route')->getAttribute('frontName'));
+                $router->args->addChild('module',
+                    (string)$newConfig->getNode('router/route/module')->getAttribute('name')
+                );
             }
         }
     }
 
-    public function loadDiConfig($diFile)
+    public function loadDiConfig()
     {
+        $diFile = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'di.xml');
+        if (!is_readable($diFile)) {
+            return;
+        }
         $newConfig = Mage::getModel('core/config_base');
         $newConfig->loadFile($diFile);
         $preference = $newConfig->getNode('preference');
@@ -194,7 +182,7 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
             $rewriteModuleNode->rewrite->addChild($rewriteFile, (string)$preferenceChild['type']);
 
             // Block factory not used autoloader
-            // so we need to load file here
+            // so we need to include file here
             if ($rewriteType == 'blocks') {
                 $newClassName = (string)$preferenceChild['type'];
                 Mage::getModel('eltrino_compatibility/splAutoloader')->loadClass($newClassName);
@@ -202,15 +190,19 @@ class Eltrino_Compatibility_Model_Xml_Config_Module extends Mage_Core_Model_Conf
         }
     }
 
-    public function loadCrontab($crontabFile)
+    public function loadCrontabConfig()
     {
+        $crontabFile = realpath($this->_etcModuleDir . DIRECTORY_SEPARATOR . 'crontab.xml');
+        if (!is_readable($crontabFile)) {
+            return;
+        }
+
         /** @var Mage_Core_Model_Config_Element $jobs */
-        $jobs = $this->_config->_xml->crontab->jobs;
+        $jobs = $this->_config->getNode('crontab/jobs');
         $newConfig = Mage::getModel('core/config_base');
         $newConfig->loadFile($crontabFile);
         /** @var Mage_Core_Model_Config_Element $group */
-        $group = $newConfig->_xml->group;
-        foreach ($group->job as $job) {
+        foreach ($newConfig->getNode('group/job') as $job) {
             /** @var Mage_Core_Model_Config_Element $newJob */
             $newJob = $jobs->addChild((string)$job['name']);
             $newJob->addChild('schedule');

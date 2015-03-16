@@ -13,31 +13,36 @@ class Eltrino_Compatibility_Model_Xml_Modules extends Mage_Core_Model_Config_Bas
 
     public function loadModules(array $files)
     {
-        // TODO: Refactor this piece of shit
         $this->loadString('<config/>');
         $loadedModules = array();
         foreach ($files as $file) {
+
             $this->_magento2config->loadFile($file);
             $moduleName = $this->_magento2config->getNode('module')->getAttribute('name');
-            if (count(Mage::getConfig()->_xml->xpath('//' . $moduleName))) {
+
+            if ($this->isModuleLoaded($moduleName)) {
+                $loadedModules[] = $moduleName;
                 continue;
             }
+
             $loadedModules[] = $moduleName;
             $version = $this->_magento2config->getNode('module')->getAttribute('schema_version');
-            $currentConfig = Mage::getConfig()->_xml->xpath('modules');
-            $modules = $currentConfig[0];
-            if (count($modules->xpath($moduleName))) {
-                return $loadedModules;
-            }
+            $modules = Mage::getConfig()->getNode('modules');
             $child = $modules->addChild($moduleName);
             $child->addChild('active', 'true');
             $child->addChild('codePool', 'community');
             $child->addChild('version', $version);
-            $this->loadString('config');
+            $this->loadString('<config/>');
         }
-        Mage::getConfig()->saveCache();
 
         return $loadedModules;
+    }
+
+    public function isModuleLoaded($moduleName)
+    {
+        $node = Mage::getConfig()->getNode('modules/' . $moduleName);
+
+        return (bool)$node;
     }
 
 }
