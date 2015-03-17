@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -39,7 +39,6 @@ class Eltrino_Compatibility_Model_Xml_Modules extends Mage_Core_Model_Config_Bas
         $this->loadString('<config/>');
         $loadedModules = array();
         foreach ($files as $file) {
-
             $this->_magento2config->loadFile($file);
             $moduleName = $this->_magento2config->getNode('module')->getAttribute('name');
 
@@ -63,9 +62,8 @@ class Eltrino_Compatibility_Model_Xml_Modules extends Mage_Core_Model_Config_Bas
 
     public function isModuleLoaded($moduleName)
     {
-        $node = Mage::getConfig()->getNode('modules/' . $moduleName);
+        $node = Mage::getConfig()->getNode('modules/'.$moduleName);
 
-        return (bool)$node;
+        return (bool) $node;
     }
-
 }

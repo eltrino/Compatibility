@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -26,7 +26,7 @@
 class Eltrino_Compatibility_Model_Modules extends Eltrino_Compatibility_Model_Observer
 {
     /**
-     * Main point to load configuration files
+     * Main point to load configuration files.
      */
     public function loadModules()
     {
@@ -50,7 +50,7 @@ class Eltrino_Compatibility_Model_Modules extends Eltrino_Compatibility_Model_Ob
     }
 
     /**
-     * Retrieve list of magento2 modules on the basis of files "module.xml"
+     * Retrieve list of magento2 modules on the basis of files "module.xml".
      *
      * @return array
      */
@@ -64,8 +64,8 @@ class Eltrino_Compatibility_Model_Modules extends Eltrino_Compatibility_Model_Ob
 
         $files = array();
         foreach ($this->_allowedPools as $pool) {
-            foreach (glob(Mage::getBaseDir() . '/app/code/' . $pool . '/*/*/') as $moduleDir) {
-                $file = realpath($moduleDir . 'etc/module.xml');
+            foreach (glob(Mage::getBaseDir().'/app/code/'.$pool.'/*/*/') as $moduleDir) {
+                $file = realpath($moduleDir.'etc/module.xml');
                 if (file_exists($file)) {
                     $files[] = $file;
                 }

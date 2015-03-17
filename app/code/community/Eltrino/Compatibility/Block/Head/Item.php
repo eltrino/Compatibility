@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -35,7 +35,7 @@ class Eltrino_Compatibility_Block_Head_Item extends Mage_Core_Block_Template
     public function getCssOutput()
     {
         $args = explode('::', $this->getCss());
-        $file = Mage::getModuleDir('', $args[0]) . '/view/frontend/web/' . $args[1];
+        $file = Mage::getModuleDir('', $args[0]).'/view/frontend/web/'.$args[1];
         $url = str_replace(Mage::getBaseDir(), rtrim(Mage::getBaseUrl(), '/'), $file);
 
         return sprintf('<link rel="stylesheet" href="%s"/>', $url);

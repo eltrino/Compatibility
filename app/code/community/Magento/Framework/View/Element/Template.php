@@ -1,6 +1,6 @@
 <?php
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -22,6 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace Magento\Framework\View\Element;
 
 class Template extends \Mage_Core_Block_Template
@@ -29,13 +30,13 @@ class Template extends \Mage_Core_Block_Template
     protected function _toHtml()
     {
         $parts = explode('\\', get_class($this));
-        $moduleName = $parts[0] . '_' . $parts[1];
-        $filePath = \Mage::getModuleDir('', $moduleName) . '/view/frontend/templates/' . $this->getTemplate();
+        $moduleName = $parts[0].'_'.$parts[1];
+        $filePath = \Mage::getModuleDir('', $moduleName).'/view/frontend/templates/'.$this->getTemplate();
         $html = '';
         if (is_readable($filePath)) {
             ob_start();
             $block = $this;
-            include($filePath);
+            include $filePath;
             $html = ob_get_clean();
         }
         $this->setTemplate('');

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -34,7 +34,7 @@ class Eltrino_Compatibility_Model_Observer
     protected $_cacheTags = array();
 
     /** @var array */
-    static $_loadedModules = array();
+    public static $_loadedModules = array();
 
     /** @var array */
     protected $_allowedPools = array(
@@ -50,13 +50,13 @@ class Eltrino_Compatibility_Model_Observer
         $this->_useCache = Mage::app()->useCache(static::CACHE_GROUP);
         $this->_cacheTags = array(
             Mage_Core_Model_Config::CACHE_TAG,
-            static::CACHE_TAG
+            static::CACHE_TAG,
         );
     }
 
     /**
      * This is a first observer in magento
-     * where we can update module list and configuration
+     * where we can update module list and configuration.
      *
      * @param $observer
      */
@@ -104,5 +104,4 @@ class Eltrino_Compatibility_Model_Observer
 
         return false;
     }
-
 }

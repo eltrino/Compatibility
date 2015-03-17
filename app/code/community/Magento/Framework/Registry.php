@@ -1,6 +1,6 @@
 <?php
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -22,6 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace Magento\Framework;
 
 class Registry extends \Varien_Object
@@ -38,6 +39,7 @@ class Registry extends \Varien_Object
 
     /**
      * @param $key
+     *
      * @return mixed
      */
     public function registry($key)
@@ -45,4 +47,3 @@ class Registry extends \Varien_Object
         return \Mage::registry($key);
     }
 }
-

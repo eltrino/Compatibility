@@ -1,6 +1,6 @@
 <?php
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -22,6 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace Magento\Framework\Model\Resource\Db;
 
 class AbstractDb extends \Mage_Core_Model_Resource_Db_Abstract
@@ -39,6 +40,6 @@ class AbstractDb extends \Mage_Core_Model_Resource_Db_Abstract
         $resourceName = $resource->xpath('../..')[0]->getName();
         $model = str_replace('_resource', '', $resourceName);
 
-        parent::_init($model . '/' . $table, $idFieldName);
+        parent::_init($model.'/'.$table, $idFieldName);
     }
 }

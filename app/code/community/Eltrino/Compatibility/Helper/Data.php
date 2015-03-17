@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -25,5 +25,4 @@
  */
 class Eltrino_Compatibility_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
 }

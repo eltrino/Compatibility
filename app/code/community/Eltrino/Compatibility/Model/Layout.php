@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The MIT License (MIT)
+ * The MIT License (MIT).
  *
  * Copyright (c) 2015 Eltrino LLC (http://eltrino.com)
  *
@@ -37,13 +37,13 @@ class Eltrino_Compatibility_Model_Layout extends Eltrino_Compatibility_Model_Obs
         $handles = $update->getHandles();
 
         foreach (static::$_loadedModules as $moduleName) {
-            $layoutDir = Mage::getModuleDir('', $moduleName) . '/view/frontend/layout/';
+            $layoutDir = Mage::getModuleDir('', $moduleName).'/view/frontend/layout/';
             if (!is_readable($layoutDir)) {
                 continue;
             }
 
             $handlesToUpdate = array();
-            foreach (glob($layoutDir . '*.xml') as $layoutFile) {
+            foreach (glob($layoutDir.'*.xml') as $layoutFile) {
                 $handleName = basename($layoutFile, '.xml');
                 if (in_array($handleName, $handles)) {
                     $handlesToUpdate[] = $handleName;
@@ -57,10 +57,10 @@ class Eltrino_Compatibility_Model_Layout extends Eltrino_Compatibility_Model_Obs
             $action->loadLayoutUpdates();
 
             foreach ($handlesToUpdate as $handleName) {
-                $layoutFile = $layoutDir . $handleName . '.xml';
+                $layoutFile = $layoutDir.$handleName.'.xml';
                 $xml = new Varien_Simplexml_Element(file_get_contents($layoutFile));
                 $newXml = new Mage_Core_Model_Layout_Element('<update/>');
-                /** @var Varien_Simplexml_Element $child */
+                /* @var Varien_Simplexml_Element $child */
 
                 if ($xml->getName() == 'page') {
                     $layoutPageUpdate = $xml->getAttribute('layout');
@@ -69,7 +69,7 @@ class Eltrino_Compatibility_Model_Layout extends Eltrino_Compatibility_Model_Obs
                         $reference->addAttribute('name', 'root');
                         $reference->addChild('action');
                         $reference->action->addAttribute('method', 'setTemplate');
-                        $reference->action->addChild('template', 'page/' . $layoutPageUpdate . '.phtml');
+                        $reference->action->addChild('template', 'page/'.$layoutPageUpdate.'.phtml');
                     }
                 }
 
@@ -96,7 +96,7 @@ class Eltrino_Compatibility_Model_Layout extends Eltrino_Compatibility_Model_Obs
                                 foreach ($element as $subElement) {
                                     if ($subElement->getName() == 'block') {
                                         $block = $reference->addChild('block');
-                                        /** TODO: do check is attribute exists before add */
+                                        /* TODO: do check is attribute exists before add */
                                         $block->addAttribute('name', $subElement['name']);
                                         $block->addAttribute('type', $subElement['class']);
                                         $block->addAttribute('after', $subElement['after']);
@@ -114,6 +114,5 @@ class Eltrino_Compatibility_Model_Layout extends Eltrino_Compatibility_Model_Obs
             }
             $action->generateLayoutXml()->generateLayoutBlocks();
         }
-
     }
 }

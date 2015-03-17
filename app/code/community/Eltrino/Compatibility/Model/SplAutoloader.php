@@ -16,7 +16,7 @@
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
- 
+
 /**
  * SplClassLoader implementation that implements the technical interoperability
  * standards for PHP 5.3 namespaces and class names.
@@ -27,7 +27,7 @@
  *     // Doctrine\Common namespace.
  *     $classLoader = new SplClassLoader('Doctrine\Common', '/path/to/doctrine');
  *     $classLoader->register();
- * 
+ *
  * @license http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author Jonathan H. Wage <jonwage@gmail.com>
  * @author Roman S. Borschel <roman@code-factory.org>
@@ -37,7 +37,6 @@
  */
 class Eltrino_Compatibility_Model_SplAutoloader extends Mage_Core_Model_Abstract
 {
-
     private $_fileExtension = '.php';
     private $_namespace;
     private $_includePath;
@@ -135,7 +134,6 @@ class Eltrino_Compatibility_Model_SplAutoloader extends Mage_Core_Model_Abstract
      * Loads the given class or interface.
      *
      * @param string $className The name of the class to load.
-     * @return void
      */
     public function loadClass($className)
     {
@@ -144,9 +142,9 @@ class Eltrino_Compatibility_Model_SplAutoloader extends Mage_Core_Model_Abstract
         if ($lastNsPos = strripos($className, '\\')) {
             $namespace = substr($className, 0, $lastNsPos);
             $className = substr($className, $lastNsPos + 1);
-            $fileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+            $fileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace).DIRECTORY_SEPARATOR;
         }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className).'.php';
         $fileName = stream_resolve_include_path($fileName);
         if (false !== $fileName) {
             include_once $fileName;
