@@ -2,8 +2,8 @@
     "name": "eltrino/compatibility",
     "type": "magento-module",
     "license": "MIT",
-    "homepage": "https://bitbucket.org/eltrino/compatibility",
-    "description": "Module provide backward compatibility with Magento 1.x for Magento 2 modules",
+    "homepage": "https://github.com/eltrino/Compatibility",
+    "description": "Extension provides backward compatibility with Magento 1.x for Magento 2 Extensions",
     "authors": [
         {
             "name": "Eltrino LLC",
@@ -11,6 +11,7 @@
         }
     ],
     "require": {
+        "php": ">=5.5",
         "magento-hackathon/magento-composer-installer": "*"
     },
     "extra": {
