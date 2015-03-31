@@ -1,0 +1,3 @@
+app/code/community/Magento/ app/code/community/Magento/
+app/code/community/Eltrino/Compatibility/ app/code/community/Eltrino/Compatibility/
+app/etc/modules/Eltrino_Compatibility.xml app/etc/modules/Eltrino_Compatibility.xml
